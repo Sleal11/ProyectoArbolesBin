@@ -12,7 +12,7 @@ Este proyecto implementa una **mini librería de grafos en C++** utilizando list
   * DFS (Recorrido en profundidad)
   * Dijkstra (Camino más corto)
 
-## 📌 Formato del archivo CSV
+Formato del archivo CSV
 
 El archivo `grafos.csv` define el grafo mediante aristas.
 
@@ -78,7 +78,7 @@ No requiere menú ni interacción del usuario.
 
 ---
 
-## 📚 Funciones implementadas
+Funciones implementadas
 
 ### **1. BFS**
 
