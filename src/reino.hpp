@@ -1,49 +1,71 @@
-#include "persona.hpp"
+#ifndef REINO_HPP
+#define REINO_HPP
+
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <list>
 
+using namespace std;
+
+struct Persona {
+    int id;
+    string nombre;
+    string apellido;
+    char genero; // 'H' hombre, 'M' mujer
+    int edad;
+    int id_padre;
+    bool esta_muerto;
+    bool fue_rey;
+    bool es_rey;
+
+    Persona* padre;
+    Persona* primogenito;
+    Persona* segundo;
+
+    Persona(int _id, const string& _nombre, const string& _apellido, char _genero, int _edad,
+            int _id_padre, bool _esta_muerto, bool _fue_rey, bool _es_rey)
+        : id(_id), nombre(_nombre), apellido(_apellido), genero(_genero), edad(_edad),
+          id_padre(_id_padre), esta_muerto(_esta_muerto), fue_rey(_fue_rey), es_rey(_es_rey),
+          padre(nullptr), primogenito(nullptr), segundo(nullptr) {}
+
+    string nombre_completo() const {
+        return nombre + " " + apellido;
+    }
+};
+
 class Reino {
-public:
-    Reino();
-    ~Reino();
-
-    bool cargar_csv(const std::string& ruta);
-    bool guardar_csv(const std::string& ruta);
-
-    void construir_arbol(); // conectar padres e hijos
-    void mostrar_debug() const;
-
-    void mostrar_sucesion() const; // mostrar linea de sucesion actual (solo vivos)
-    void asignar_nuevo_rey_por_muerte_o_edad(); // reasigna si rey muerto o >=70
-
-    Persona* buscar_por_id(int id) const;
-    Persona* obtener_rey_actual() const;
-
-    bool editar_persona(int id, const std::string& nombre, const std::string& apellido,
-                        char genero, int edad, bool esta_muerto, bool fue_rey, bool es_rey);
-
-    void marcar_muerto(int id);
-
 private:
-    std::unordered_map<int, Persona*> personas; // id -> Persona*
-    Persona* ancestro; // primer rey (ancestro)
+    map<int, Persona*> personas;
+    Persona* ancestro;
     Persona* rey_actual;
 
     void limpiar();
     void eliminar_todo();
+    list<string> split_csv_line(const string& linea);
+    void construir_arbol();
+    void recolectar_primogenitura(Persona* nodo, list<Persona*>& salida) const;
+    string ruta_rama(Persona* p) const;
+    Persona* elegir_sucesor_desde_lista(const list<Persona*>& candidatos) const;
+//sig
+public:
+    Reino();
+    ~Reino();
 
-    // generar lista de candidatos por primogenitura (pref L then R) desde un nodo
-    void recolectar_primogenitura(Persona* nodo, std::list<Persona*>& salida) const;
+    bool cargar_csv(const string& ruta);
+    bool guardar_csv(const string& ruta);
 
-    // filtra segun reglas (varones <70 preferidos, fallback a mujer>15 más joven)
-    Persona* elegir_sucesor_desde_lista(const std::list<Persona*>& candidatos) const;
+    Persona* buscar_por_id(int id) const;
 
-    // distancia/closer to primogenito branch used for tie-break female
-    std::string ruta_rama(Persona* p) const;
-
-    static std::list<std::string> split_csv_line(const std::string& linea);
     void actualizar_rey_actual();
+    Persona* obtener_rey_actual() const;
+    void asignar_nuevo_rey_por_muerte_o_edad();
+    void mostrar_sucesion() const;
+    bool editar_persona(int id, const string& nombre, const string& apellido,
+                        char genero, int edad, bool esta_muerto, bool fue_rey, bool es_rey);
+    void marcar_muerto(int id);
+
+    // NUEVO: Getter público para obtener el ancestro
+    Persona* obtener_ancestro() const { return ancestro; }
 };
 
 #endif
