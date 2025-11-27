@@ -19,9 +19,7 @@ void Reino::limpiar() {
     rey_actual = nullptr;
 }
 
-void Reino::eliminar_todo() {
-    limpiar();
-}
+void Reino::eliminar_todo() { limpiar(); }
 
 list<string> Reino::split_csv_line(const string& linea) {
     list<string> res;
@@ -52,7 +50,7 @@ bool Reino::cargar_csv(const string& ruta) {
         if (linea.empty()) continue;
         if (primera) { primera = false; continue; } // saltar encabezado
         auto cols_list = split_csv_line(linea);
-        // convertir list a vector temporal pequeño para indexar (no usamos std::vector globalmente)
+
         string cols_arr[9];
         int idx = 0;
         for (auto &s : cols_list) {
@@ -83,7 +81,7 @@ bool Reino::cargar_csv(const string& ruta) {
 bool Reino::guardar_csv(const string& ruta) {
     ofstream f(ruta);
     if (!f.is_open()) return false;
-    f << "id,name,last_name,gender,age,id_father,is_dead,was_king,is_king\n";
+    f << "id,nombre,apellido,genero,edad,id_padre,esta_muerto,fue_rey,es_rey\n";
     for (auto &kv : personas) {
         Persona* p = kv.second;
         f << p->id << "," << p->nombre << "," << p->apellido << "," << p->genero << ","
@@ -93,16 +91,14 @@ bool Reino::guardar_csv(const string& ruta) {
     f.close();
     return true;
 }
-// dia 2
+
 void Reino::construir_arbol() {
-    // reset pointers
     for (auto &kv : personas) {
         kv.second->primogenito = nullptr;
         kv.second->segundo = nullptr;
         kv.second->padre = nullptr;
     }
 
-    // identificar ancestro: persona con id_padre == 0 -> primer hallado
     for (auto &kv : personas) {
         Persona* p = kv.second;
         if (p->id_padre == 0) {
@@ -111,7 +107,6 @@ void Reino::construir_arbol() {
         }
     }
 
-    // conectar hijos; primer hijo encontrado = primogenito, segundo = segundo
     for (auto &kv : personas) {
         Persona* p = kv.second;
         if (p->id_padre != 0) {
@@ -128,17 +123,6 @@ void Reino::construir_arbol() {
                 cerr << "Advertencia: padre id " << p->id_padre << " no encontrado para id " << p->id << '\n';
             }
         }
-    }
-}
-
-void Reino::mostrar_debug() const {
-    for (auto &kv : personas) {
-        Persona* p = kv.second;
-        cout << p->nombre_completo()
-             << " padre:" << p->id_padre
-             << " primog:" << (p->primogenito?to_string(p->primogenito->id):string("0"))
-             << " seg:" << (p->segundo?to_string(p->segundo->id):string("0"))
-             << " muerto:" << p->esta_muerto << " edad:" << p->edad << " rey:" << p->es_rey << "\n";
     }
 }
 
@@ -171,26 +155,21 @@ string Reino::ruta_rama(Persona* p) const {
 }
 
 Persona* Reino::elegir_sucesor_desde_lista(const list<Persona*>& candidatos) const {
-    // 1) primer varon vivo y menor de 70
     for (Persona* c : candidatos) {
         if (!c) continue;
         if (!c->esta_muerto && c->genero == 'H' && c->edad < 70) return c;
     }
-    // 2) si no hay varones, elegir mujer mayor a 15 años, la más joven; en empate rama más cercana a primogenitos
     list<Persona*> fems;
     for (Persona* c : candidatos) {
         if (!c) continue;
         if (!c->esta_muerto && c->genero == 'M' && c->edad > 15) fems.push_back(c);
     }
     if (fems.empty()) return nullptr;
-    // encontrar la edad mínima
     int min_edad = 1000;
     for (Persona* f : fems) if (f->edad < min_edad) min_edad = f->edad;
-    // recolectar las que tengan min_edad
     list<Persona*> empate;
     for (Persona* f : fems) if (f->edad == min_edad) empate.push_back(f);
     if (empate.size() == 1) return empate.front();
-    // desempatar por ruta_rama lexicográfica (L.. < R..)
     Persona* mejor = nullptr;
     string mejor_ruta;
     for (Persona* f : empate) {
@@ -205,7 +184,6 @@ void Reino::actualizar_rey_actual() {
     for (auto &kv : personas) {
         if (kv.second->es_rey) { rey_actual = kv.second; return; }
     }
-    // si nadie marcado como rey, intentar asignar desde ancestro
     if (!rey_actual && ancestro) {
         list<Persona*> todos;
         recolectar_primogenitura(ancestro, todos);
@@ -217,7 +195,7 @@ void Reino::actualizar_rey_actual() {
         }
     }
 }
-// dia 3
+
 Persona* Reino::obtener_rey_actual() const { return rey_actual; }
 
 void Reino::asignar_nuevo_rey_por_muerte_o_edad() {
@@ -248,7 +226,6 @@ void Reino::mostrar_sucesion() const {
     list<Persona*> todos;
     recolectar_primogenitura(ancestro, todos);
 
-    // hacer lista de varones aptos
     list<Persona*> varones;
     for (Persona* p : todos) {
         if (!p) continue;
@@ -272,7 +249,6 @@ void Reino::mostrar_sucesion() const {
             }
         }
     } else {
-        // listar mujeres aptas (>15) por edad ascendente y tie-break por ruta
         list<Persona*> fems;
         for (Persona* p : todos) {
             if (!p) continue;
@@ -282,14 +258,11 @@ void Reino::mostrar_sucesion() const {
             cout << "(No hay candidatos aptos)\n";
             return;
         }
-        // ordenar fems por edad asc y luego por ruta. Como no usamos vector, hacemos ordenamiento simple por intercambio (bubble) sobre una lista copiable a arreglo temporal de punteros.
-        // Convertir a arreglo dinámico
         int n = 0;
         for (auto it = fems.begin(); it != fems.end(); ++it) ++n;
         Persona** arr = new Persona*[n];
         int i = 0;
         for (Persona* p : fems) arr[i++] = p;
-        // ordenar
         for (int a = 0; a < n-1; ++a)
             for (int b = 0; b < n-1-a; ++b) {
                 Persona* A = arr[b];
@@ -339,4 +312,3 @@ void Reino::marcar_muerto(int id) {
         asignar_nuevo_rey_por_muerte_o_edad();
     }
 }
-//resto
