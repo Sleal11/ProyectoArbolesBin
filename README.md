@@ -91,7 +91,3 @@ Muestra el recorrido en profundidad.
 ### **3. Dijkstra**
 
 Imprime la distancia mínima desde el nodo 0 hacia todos los demás.
-
-
-Si necesitas agregar más algoritmos (Floyd, Prim, Kruskal, etc.), ¡puedo ayudarte!
-
