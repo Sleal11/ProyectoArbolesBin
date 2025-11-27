@@ -1,93 +1,83 @@
-# ProyectoArbolesBin
-# Mini Librería de Grafos en C++: Santiago Leal
+PROYECTO: SISTEMA DE SUCESIÓN REAL BASADO EN ÁRBOLES BINARIOS
+Autor: Santiago Leal — Cédula 32.741.894
 
-Este proyecto implementa una **mini librería de grafos en C++** utilizando listas de adyacencia, cumpliendo con los requerimientos académicos:
+DESCRIPCIÓN GENERAL
+Este proyecto implementa un sistema de administración de un árbol genealógico real, donde cada miembro del linaje es representado mediante un nodo dentro de un árbol binario. A partir de un archivo CSV, el programa carga toda la información de la familia y determina automáticamente quién debe ocupar el trono según un conjunto de reglas de sucesión previamente establecidas. El objetivo principal es simular de forma estructurada la herencia del trono, considerando restricciones de parentesco, edad, género y disponibilidad de herederos dentro de las distintas ramas familiares.
 
-* Implementación simple y clara.
-* Archivos separados: `.hpp`, `.cpp`, `main.cpp`.
-* Lectura desde un archivo `.csv`.
-* Algoritmos incluidos:
+FUNCIONALIDADES PRINCIPALES
 
-  * BFS (Recorrido en anchura)
-  * DFS (Recorrido en profundidad)
-  * Dijkstra (Camino más corto)
+Carga de datos desde archivo CSV
+El programa lee un archivo con formato:
+id, nombre, apellido, genero, edad, id_padre, esta_muerto, fue_rey, es_rey
+A partir de esta información construye el árbol genealógico respetando el id del padre y la estructura de descendencia del primer rey.
 
-Formato del archivo CSV
+Construcción del árbol genealógico
+Cada persona se inserta en el árbol según su relación padre-hijo.
+Dado que cada rey únicamente puede tener hasta dos descendientes, el árbol mantiene una estructura binaria: el hijo primogénito ocupa el lado izquierdo y el segundo hijo ocupa el lado derecho. Debido a esto, la construcción del árbol respeta el orden de nacimiento y permite navegar correctamente por las distintas ramas familiares.
 
-El archivo `grafos.csv` define el grafo mediante aristas.
+Generación de la línea de sucesión
+El programa muestra en pantalla la línea de sucesión tomando en cuenta solamente a los miembros vivos y elegibles.
+Las reglas principales consideran:
 
-Cada fila representa una conexión:
+Prioridad total a varones dentro de la rama del primogénito.
 
-```
-nodo_origen,nodo_destino,peso
-```
+Exclusión automática de personas fallecidas o mayores de 70 años.
 
-Ejemplo incluido:
+En caso de que todos los primogénitos estén muertos o sean inelegibles, se explora la rama del hermano, del tío y posteriormente se asciende hasta encontrar un ancestro con dos ramas válidas.
 
-```
-0,1,4
-0,2,2
-1,2,1
-1,3,7
-2,4,3
-4,3,2
-3,5,1
-```
+Cuando no existen varones disponibles, la corona pasa a la mujer mayor de 15 años más joven dentro de la rama más cercana al linaje primogénito.
 
-**Explicación:**
+Asignación automática de un nuevo rey
+Si el rey actual muere o supera los 70 años, el sistema analiza las diferentes ramas familiares para determinar quién debe convertirse en el nuevo rey. El proceso incluye:
 
-* `0,1,4` significa que existe una arista de **0 a 1** con peso **4**.
-* El grafo es **no dirigido**, por lo que internamente se agrega también **1 a 0**.
+Hijos varones del rey.
 
----
+Nietos dentro de la rama primogénita.
 
-Cómo compilar el proyecto
+Hermanos y descendencia de los hermanos.
 
-### **Con g++ manualmente:**
+Tíos y descendencia de los tíos.
 
-Ejecuta en la carpeta raíz del proyecto:
+Mujeres en caso de ausencia total de varones.
 
-```
-g++ -std=c++11 main.cpp src/grafo.cpp -I include -o grafos
-```
+Reglas especiales para sucesión posterior a una reina, en cuyo caso la corona vuelve a un varón en la línea establecida.
 
-Esto genera el ejecutable:
+Modificación de datos
+El usuario puede cambiar los datos de cualquier miembro del árbol con excepción del id y del id del padre, que se mantienen fijos para conservar la estructura del árbol.
 
-```
-grafos.exe (Windows)
-./grafos (Linux)
-```
+ESTRUCTURA DEL PROYECTO
+El proyecto se organiza en carpetas de la siguiente forma:
 
----
+bin/
+Contiene el archivo ejecutable y el archivo datos.csv utilizado para pruebas.
 
- Cómo ejecutar
+src/
+Contiene los archivos fuente del proyecto (.cpp).
 
-Una vez compilado:
+include/ (opcional)
+Contiene los archivos de encabezado (.hpp) en caso de dividir el código en módulos.
 
-```
-./grafos
-```
+COMO COMPILAR
+Para compilar el proyecto desde la consola, utilizar un comando similar al siguiente (adaptado a los nombres utilizados por el usuario):
 
-El programa **carga automáticamente** el archivo `data/grafos.csv` y muestra:
+g++ -std=c++11 src/main.cpp src/arbol.cpp src/nodo.cpp -o bin/sucesion
 
-* Recorrido BFS desde nodo 0
-* Recorrido DFS desde nodo 0
-* Camino más corto (Dijkstra) desde nodo 0
+EJECUCIÓN DEL PROGRAMA
+Una vez compilado, el programa se ejecuta con:
 
-No requiere menú ni interacción del usuario.
+./bin/sucesion
 
----
+El menú del programa permite:
 
-Funciones implementadas
+Mostrar la línea de sucesión.
 
-### **1. BFS**
+Seleccionar un nuevo rey de forma automática.
 
-Muestra los nodos por niveles desde el nodo inicial.
+Modificar datos de un miembro.
 
-### **2. DFS**
+Visualizar información completa.
 
-Muestra el recorrido en profundidad.
+Finalizar la ejecución.
 
-### **3. Dijkstra**
-
-Imprime la distancia mínima desde el nodo 0 hacia todos los demás.
+OBJETIVO DEL TRABAJO
+El propósito de este proyecto es aplicar los conceptos fundamentales de árboles binarios, organización jerárquica y manejo de datos para crear un simulador de sucesión monárquica. Se busca que el estudiante comprenda la lógica de navegación de árboles, el manejo de archivos CSV, el diseño modular en C++ y la implementación manual de estructuras sin uso de librerías avanzadas como vector.
