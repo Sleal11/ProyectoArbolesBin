@@ -1,7 +1,7 @@
 # ProyectoArbolesBin
 # Mini Librería de Grafos en C++: Santiago Leal
 
-Este proyecto implementa una **mini librería de grafos en C++** utilizando **listas de adyacencia sin vectores**, cumpliendo con los requerimientos académicos:
+Este proyecto implementa una **mini librería de grafos en C++** utilizando listas de adyacencia, cumpliendo con los requerimientos académicos:
 
 * Implementación simple y clara.
 * Archivos separados: `.hpp`, `.cpp`, `main.cpp`.
