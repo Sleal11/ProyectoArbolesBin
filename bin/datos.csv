@@ -14,5 +14,3 @@ id,nombre,apellido,genero,edad,id_padre,esta_muerto,fue_rey,es_rey
 13,Draven,Stormrider,1,32,11,0,0,0
 14,Calen,Stormrider,1,10,13,0,0,0
 15,Selene,Stormrider,0,8,13,0,0,0
-
-//ultimo dia
